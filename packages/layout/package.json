@@ -1,0 +1,32 @@
+{
+  "name": "@mini-browser/layout",
+  "version": "0.0.0",
+  "description": "@mini-browser/layout",
+  "author": "wendraw",
+  "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/layout#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "buildOptions": {
+    "name": "MiniBrowserLayout",
+    "formats": [
+      "esm",
+      "cjs"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wendraw/mini-browser.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/wendraw/mini-browser/issues"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@mini-browser/parse-js",
+  "version": "0.0.0",
+  "description": "@mini-browser/parse-js",
+  "author": "wendraw",
+  "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/parse-js#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "buildOptions": {
+    "name": "MiniBrowserParseJS",
+    "formats": [
+      "esm",
+      "cjs"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wendraw/mini-browser.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/wendraw/mini-browser/issues"
+  }
+}

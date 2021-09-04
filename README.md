@@ -1,1 +1,1 @@
-# toyed-browser-client
+# mini-browser

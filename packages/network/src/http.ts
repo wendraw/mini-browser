@@ -4,8 +4,8 @@ import { Response } from './response'
 
 let client: net.Socket
 
-export default async function fakeHttp(url: string, init?: requestOptional) {
-  return new Promise((resolve, reject) => {
+export default function fakeHttp(url: string, init?: requestOptional) {
+  return new Promise<Response>((resolve, reject) => {
     const req = new Request(url, init)
     let responseData = Buffer.alloc(0)
     if (client) {
@@ -26,8 +26,7 @@ export default async function fakeHttp(url: string, init?: requestOptional) {
     })
     client.on('end', () => {
       const response = new Response(responseData)
-      console.log(response.statusLine, response.header)
-      console.log('================', Buffer.from(response.messageBody).length)
+      resolve(response)
     })
     client.on('error', (err) => {
       reject(err)

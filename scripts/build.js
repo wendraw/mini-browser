@@ -35,6 +35,7 @@ const sourceMap = args.sourcemap || args.s
 const isRelease = args.release
 const buildTypes = args.t || args.types || isRelease
 const buildAllMatching = args.all || args.a
+const watch = args.watch || args.w
 const commit = execa.sync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
 
 run()
@@ -96,6 +97,7 @@ async function build(target) {
     'rollup',
     [
       '-c',
+      watch ? '-w' : '',
       '--environment',
       [
         `COMMIT:${commit}`,

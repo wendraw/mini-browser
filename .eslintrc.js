@@ -19,7 +19,7 @@ module.exports = {
   rules: {
     'import/prefer-default-export': 'off',
     'no-restricted-syntax': 'off',
-    'no-use-before-define': ['error', { functions: false, classes: false }],
+    'no-use-before-define': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'import/no-absolute-path': 'off',

@@ -58,8 +58,6 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-console.log(packageConfigs)
-
 export default packageConfigs
 
 function createConfig(format, output, plugins = []) {

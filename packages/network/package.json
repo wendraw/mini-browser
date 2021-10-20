@@ -1,9 +1,9 @@
 {
-  "name": "@mini-browser/http",
+  "name": "@mini-browser/network",
   "version": "0.0.0",
-  "description": "@mini-browser/http",
+  "description": "@mini-browser/network",
   "author": "wendraw",
-  "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/http#readme",
+  "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/network#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "files": [

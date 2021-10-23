@@ -3,7 +3,7 @@ import { IGeneralHeader, IResponseHeader, IEntityHeader } from './header'
 export class Response {
   statusLine: StatusLine
 
-  header: IHeader
+  headers: IHeader
 
   messageBody: string
 
@@ -13,7 +13,7 @@ export class Response {
       statusCode: '',
       reasonPhrase: '',
     }
-    this.header = {}
+    this.headers = {}
     this.messageBody = ''
 
     let bodyString: string = ''
@@ -28,7 +28,7 @@ export class Response {
       this.statusLine.statusCode,
       this.statusLine.reasonPhrase,
     ] = statusLine.split(/\s/)
-    this.header = headers
+    this.headers = headers
     this.messageBody = messageBody
   }
 }
@@ -75,7 +75,18 @@ function parseHTTP(body: string) {
 
   const waitingHeaderValue = (c: string) => {
     if (c === '\r') {
-      headers[headerName as keyof IHeader] = headerValue
+      const value = headers[headerName as keyof IHeader]
+      if (value) {
+        let values: string[] = []
+        if (value instanceof Array) {
+          values = [...value, headerValue]
+        } else if (typeof value === 'string') {
+          values = [value, headerValue]
+        }
+        headers[headerName as keyof IHeader] = values
+      } else {
+        headers[headerName as keyof IHeader] = headerValue
+      }
       headerName = ''
       headerValue = ''
       return waitingHeaderLineEnd
@@ -115,7 +126,10 @@ function parseHTTP(body: string) {
   }
 }
 
-interface IHeader extends IGeneralHeader, IResponseHeader, IEntityHeader {}
+export interface IHeader
+  extends IGeneralHeader,
+    IResponseHeader,
+    IEntityHeader {}
 
 interface StatusLine {
   httpVersion: string

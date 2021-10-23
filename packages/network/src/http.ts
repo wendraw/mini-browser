@@ -1,14 +1,20 @@
 import net from 'net'
-import { Request, requestOptional } from './request'
+import { Request, RequestOptional } from './request'
 import { Response } from './response'
 
-let client: net.Socket
+let client: net.Socket | null
 
-export default function fakeHttp(url: string, init?: requestOptional) {
+/**
+ * 仿 http 的接口
+ * @param url 请求地址
+ * @param init 请求可选的参数
+ * @returns Promise<Response>
+ */
+export default function fakeHttp(url: string, init?: RequestOptional) {
   return new Promise<Response>((resolve, reject) => {
     const req = new Request(url, init)
     let responseData = Buffer.alloc(0)
-    if (client) {
+    if (client && client.connecting) {
       client.write(req.toString())
     } else {
       client = net.createConnection(
@@ -29,6 +35,7 @@ export default function fakeHttp(url: string, init?: requestOptional) {
       resolve(response)
     })
     client.on('error', (err) => {
+      client = null
       reject(err)
     })
   })

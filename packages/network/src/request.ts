@@ -3,10 +3,10 @@ import RequestLine, { Method } from './request-line'
 import { urlParse } from './url'
 
 export interface IHeader extends IGeneralHeader, IRequestHeader, IEntityHeader {
-  [headerName: string]: string | undefined
+  [headerName: string]: string | string[] | undefined
 }
 
-export type requestOptional = {
+export type RequestOptional = {
   method?: string
   headers?: IHeader
   body?: string
@@ -19,7 +19,7 @@ export class Request {
 
   messageBody: string | undefined
 
-  constructor(url: string, init?: requestOptional) {
+  constructor(url: string, init?: RequestOptional) {
     const { method = 'GET', headers = {}, body = '' } = init || {}
 
     const urlObj = urlParse(url)

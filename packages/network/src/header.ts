@@ -1,58 +1,58 @@
 export interface IGeneralHeader {
-  'Cache-Control'?: string
-  Connection?: string
-  Date?: string
-  Pragma?: string
-  Trailer?: string
-  'Transfer-Encoding'?: string
-  Upgrade?: string
-  Via?: string
-  Warning?: string
+  'Cache-Control'?: string | string[]
+  Connection?: string | string[]
+  Date?: string | string[]
+  Pragma?: string | string[]
+  Trailer?: string | string[]
+  'Transfer-Encoding'?: string | string[]
+  Upgrade?: string | string[]
+  Via?: string | string[]
+  Warning?: string | string[]
 }
 
 export interface IRequestHeader {
-  Accept?: string
-  'Accept-Charset'?: string
-  'Accept-Encoding'?: string
-  'Accept-Language'?: string
-  Authorization?: string
-  Expect?: string
-  From?: string
-  Host?: string
-  'If-Match'?: string
-  'If-Modified-Since'?: string
-  'If-None-Match'?: string
-  'If-Range'?: string
-  'If-Unmodified-Since'?: string
-  'Max-Forwards'?: string
-  'Proxy-Authorization'?: string
-  Range?: string
-  Referer?: string
-  TE?: string
-  'User-Agent'?: string
+  Accept?: string | string[]
+  'Accept-Charset'?: string | string[]
+  'Accept-Encoding'?: string | string[]
+  'Accept-Language'?: string | string[]
+  Authorization?: string | string[]
+  Expect?: string | string[]
+  From?: string | string[]
+  Host?: string | string[]
+  'If-Match'?: string | string[]
+  'If-Modified-Since'?: string | string[]
+  'If-None-Match'?: string | string[]
+  'If-Range'?: string | string[]
+  'If-Unmodified-Since'?: string | string[]
+  'Max-Forwards'?: string | string[]
+  'Proxy-Authorization'?: string | string[]
+  Range?: string | string[]
+  Referer?: string | string[]
+  TE?: string | string[]
+  'User-Agent'?: string | string[]
 }
 
 export interface IResponseHeader {
-  'Accept-Ranges'?: string
-  Age?: string
-  ETag?: string
-  Location?: string
-  'Proxy-Authenticate'?: string
-  'Retry-After'?: string
-  Server?: string
-  Vary?: string
-  'WWW-Authenticate'?: string
+  'Accept-Ranges'?: string | string[]
+  Age?: string | string[]
+  ETag?: string | string[]
+  Location?: string | string[]
+  'Proxy-Authenticate'?: string | string[]
+  'Retry-After'?: string | string[]
+  Server?: string | string[]
+  Vary?: string | string[]
+  'WWW-Authenticate'?: string | string[]
 }
 
 export interface IEntityHeader {
-  Allow?: string
-  'Content-Encoding'?: string
-  'Content-Language'?: string
-  'Content-Length'?: string
-  'Content-Location'?: string
-  'Content-MD5'?: string
-  'Content-Range'?: string
-  'Content-Type'?: string
-  Expires?: string
-  'Last-Modified'?: string
+  Allow?: string | string[]
+  'Content-Encoding'?: string | string[]
+  'Content-Language'?: string | string[]
+  'Content-Length'?: string | string[]
+  'Content-Location'?: string | string[]
+  'Content-MD5'?: string | string[]
+  'Content-Range'?: string | string[]
+  'Content-Type'?: string | string[]
+  Expires?: string | string[]
+  'Last-Modified'?: string | string[]
 }

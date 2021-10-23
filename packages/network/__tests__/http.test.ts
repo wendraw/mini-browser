@@ -10,10 +10,14 @@ import {
 
 // eslint-disable-next-line jest/expect-expect
 test('GET: baidu.com home html plain text', () =>
-  compareHTTPResponse('http://www.baidu.com', {
-    host: 'www.baidu.com',
-    Connection: 'close',
-  }))
+  compareHTTPResponse(
+    'http://www.baidu.com',
+    {
+      host: 'www.baidu.com',
+      Connection: 'close',
+    },
+    ['cookie', 'traceid']
+  ))
 
 // eslint-disable-next-line jest/expect-expect
 test('GET: image', () =>
@@ -22,13 +26,15 @@ test('GET: image', () =>
     {
       host: 'bpic.588ku.com',
       Connection: 'close',
-    }
+    },
+    ['X-Request-Id', 'Via', 'Date', 'Expires', 'Age']
   ))
 
 async function compareHTTPResponse(
   url: string,
-  headers: RequestHeader,
-  compareOther?: CompareFunction
+  headers: RequestHeader = {},
+  filterHeaderNames: string[] = [],
+  compareMessageBody?: CompareFunction
 ) {
   const responseWithFakeHttp: Response = await fakeHttp(url, { headers })
   const responseWithNodeHttp: httpResponse = await httpRequest(url, { headers })
@@ -41,12 +47,7 @@ async function compareHTTPResponse(
   )
 
   for (const headerName of Object.keys(responseHeaders)) {
-    if (
-      /cookie/i.test(headerName) ||
-      /traceid/i.test(headerName) ||
-      /X-Request-Id/i.test(headerName) ||
-      /Via/i.test(headerName)
-    ) {
+    if (filterHeaderNames.some((name) => RegExp(name, 'i').test(headerName))) {
       continue
     }
     let headerValueWithFakeHttp =
@@ -72,8 +73,8 @@ async function compareHTTPResponse(
     Buffer.from(responseWithNodeHttp.body),
     'utf-8'
   )
-  if (compareOther) {
-    compareOther(responseWithFakeHttp, responseWithNodeHttp)
+  if (compareMessageBody) {
+    compareMessageBody(responseWithFakeHttp, responseWithNodeHttp)
   } else {
     expect(responseWithFakeHttp.messageBody).toBe(responseWithNodeHttp.body)
   }

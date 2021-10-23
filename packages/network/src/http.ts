@@ -15,8 +15,21 @@ export default function fakeHttp(url: string, init?: RequestOptional) {
     const req = new Request(url, init)
     let responseData = Buffer.alloc(0)
     if (client && client.connecting) {
+      // TCP connecting
       client.write(req.toString())
+    } else if (client) {
+      // TCP close
+      client.connect(
+        {
+          host: req.requestLine.requestURI.host,
+          port: req.requestLine.requestURI.port,
+        },
+        () => {
+          client?.write(req.toString())
+        }
+      )
     } else {
+      // TCP client not exist
       client = net.createConnection(
         {
           host: req.requestLine.requestURI.host,

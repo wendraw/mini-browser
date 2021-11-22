@@ -12,10 +12,15 @@ export type RequestOptional = {
   body?: string
 }
 
+const defaultHeaders: IHeader = {
+  Connection: 'keep-alive',
+  'Content-Type': 'application/x-www-from-urlencoded',
+}
+
 export class Request {
   requestLine: RequestLine
 
-  headers: IHeader | undefined
+  headers: IHeader
 
   messageBody: string | undefined
 
@@ -28,7 +33,7 @@ export class Request {
       port: Number(urlObj.port) || 80,
       path: urlObj.pathname || '/',
     })
-    this.headers = headers || {}
+    this.headers = { ...defaultHeaders, ...headers }
     this.messageBody = body || ''
 
     // TODO: this need add some header for init time

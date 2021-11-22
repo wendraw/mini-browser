@@ -32,5 +32,6 @@ module.exports = {
       },
     ],
     'no-continue': 'off',
+    'no-plusplus': 'off',
   },
 }

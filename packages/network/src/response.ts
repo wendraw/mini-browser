@@ -1,13 +1,14 @@
 import { IGeneralHeader, IResponseHeader, IEntityHeader } from './header'
+import { splitWith } from './utils'
 
 export class Response {
   statusLine: StatusLine
 
   headers: IHeader
 
-  messageBody: string
+  messageBody: string | Buffer
 
-  constructor(body: string | Buffer) {
+  constructor(responseBuffer: Buffer) {
     this.statusLine = {
       httpVersion: '',
       statusCode: '',
@@ -16,120 +17,130 @@ export class Response {
     this.headers = {}
     this.messageBody = ''
 
-    let bodyString: string = ''
-    if (body instanceof Buffer) {
-      bodyString = body.toString()
-    } else {
-      bodyString = body
-    }
-    const { statusLine, headers, messageBody } = parseHTTP(bodyString)
-    ;[
-      this.statusLine.httpVersion,
-      this.statusLine.statusCode,
-      this.statusLine.reasonPhrase,
-    ] = statusLine.split(/\s/)
+    const { statusLine, headers, messageBody } = parseHTTP(responseBuffer)
+    this.statusLine = statusLine
     this.headers = headers
     this.messageBody = messageBody
   }
 }
 
-function parseHTTP(body: string) {
-  let statusLine = ''
+function parseHTTP(responseBuffer: Buffer) {
+  // message body may be has \r\n\r\n
+  const [headerBuffer, ...bodys] = splitWith(responseBuffer, '\r\n\r\n')
+  const bodyBuffer = Buffer.concat(bodys)
+  const headerStr = headerBuffer.toString('utf-8')
+  const [statusLineStr, ...headerArr] = headerStr.split('\r\n')
+  const [httpVersion, statusCode, reasonPhrase] = statusLineStr.split(/\s/)
+
+  // parse header
   const headers: IHeader = {}
-  let headerName: keyof IHeader | '' = ''
-  let headerValue = ''
-  let messageBody = ''
-
-  const waitingStatusLine = (c: string) => {
-    if (c === '\r') {
-      return waitingStatusLineEnd
-    }
-    statusLine += c
-    return waitingStatusLine
-  }
-
-  const waitingStatusLineEnd = (c: string) => {
-    if (c === '\n') {
-      return waitingHeaderName
-    }
-    throw new Error('The format of the response message is incorrect')
-  }
-
-  const waitingHeaderName = (c: string) => {
-    if (c === ':') {
-      return waitingHeaderSpace
-    }
-    if (c === '\r') {
-      return waitingHeaderBlockEnd
-    }
-    headerName += c
-    return waitingHeaderName
-  }
-
-  const waitingHeaderSpace = (c: string) => {
-    if (c === ' ') {
-      return waitingHeaderValue
-    }
-    throw new Error('The format of the response message is incorrect')
-  }
-
-  const waitingHeaderValue = (c: string) => {
-    if (c === '\r') {
-      const value = headers[headerName as keyof IHeader]
-      if (value) {
-        let values: string[] = []
-        if (value instanceof Array) {
-          values = [...value, headerValue]
-        } else if (typeof value === 'string') {
-          values = [value, headerValue]
-        }
-        headers[headerName as keyof IHeader] = values
+  for (const header of headerArr) {
+    const [headerName, headerValue] = header.split(/:\s+/)
+    const value = headers[headerName]
+    if (value) {
+      if (value instanceof Array) {
+        headers[headerName] = [...value, headerValue]
       } else {
-        headers[headerName as keyof IHeader] = headerValue
+        headers[headerName] = [value, headerValue]
       }
-      headerName = ''
-      headerValue = ''
-      return waitingHeaderLineEnd
+    } else {
+      headers[headerName] = headerValue
     }
-    headerValue += c
-    return waitingHeaderValue
   }
 
-  const waitingHeaderLineEnd = (c: string) => {
-    if (c === '\n') {
-      return waitingHeaderName
-    }
+  // parse body
+  const contentType = headers['Content-Type'] || 'text/plain'
+  const contentLength = headers['Content-Length']
+  const transferEncoding = headers['Transfer-Encoding']
+  if (!contentLength && !transferEncoding) {
+    // 实际情况是很多网站的响应体中 Content-Type 和 Transfer-Encoding 都没有
     throw new Error('The format of the response message is incorrect')
   }
+  let messageBody: Buffer | string = bodyBuffer
 
-  const waitingHeaderBlockEnd = (c: string) => {
-    if (c === '\n') {
-      return waitingBody
-    }
-    throw new Error('The format of the response message is incorrect')
-  }
-
-  const waitingBody = (c: string) => {
-    messageBody += c
-    return waitingBody
-  }
-
-  let state = waitingStatusLine
-  for (const c of body) {
-    state = state(c)
+  if (transferEncoding === 'chunked') {
+    messageBody = parseChunkBody(bodyBuffer.toString('utf-8'))
+  } else if (/^text/.test(contentType)) {
+    messageBody = bodyBuffer.toString('utf-8')
+  } else if (/^image|video|audio/.test(contentType)) {
+    messageBody = bodyBuffer
+  } else if (/^application/.test(contentType)) {
+    messageBody = bodyBuffer.toString('utf-8')
   }
 
   return {
-    statusLine,
+    statusLine: {
+      httpVersion,
+      statusCode,
+      reasonPhrase,
+    },
     headers,
     messageBody,
   }
 }
 
+/**
+ * parse body string when Transfer-Encoding = "chunked" type
+ * @param body message body string
+ */
+function parseChunkBody(body: string): string {
+  let length = 0
+  const content: string[] = []
+
+  const waitingLength = (c: string) => {
+    if (c === '\r') {
+      return waitingLengthEnd
+    }
+    length *= 16
+    length += parseInt(c, 16)
+    return waitingLength
+  }
+
+  const waitingLengthEnd = (c: string) => {
+    if (c === '\n') {
+      return readChunk
+    }
+    throw new Error('The format of the response message is incorrect')
+  }
+
+  const readChunk = (c: string) => {
+    if (length === 0) {
+      return waitingNewLine
+    }
+    content.push(c)
+    length -= Buffer.from(c).byteLength
+    return readChunk
+  }
+
+  const waitingNewLine = (c: string) => {
+    if (c === '\r') {
+      return waitingNewLineEnd
+    }
+    throw new Error('The format of the response message is incorrect')
+  }
+
+  const waitingNewLineEnd = (c: string) => {
+    if (c === '\n') {
+      return waitingLength
+    }
+    throw new Error('The format of the response message is incorrect')
+  }
+
+  let state = waitingLength
+
+  for (const c of body) {
+    state = state(c)
+  }
+
+  return content.join('')
+}
+
 export interface IHeader
   extends IGeneralHeader,
     IResponseHeader,
-    IEntityHeader {}
+    IEntityHeader {
+  [headerName: string]: string | string[] | undefined
+}
 
 interface StatusLine {
   httpVersion: string

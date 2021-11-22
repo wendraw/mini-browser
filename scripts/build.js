@@ -110,7 +110,7 @@ async function build(target) {
       ]
         .filter(Boolean)
         .join(','),
-    ],
+    ].filter(Boolean),
     { stdio: 'inherit' }
   )
 }

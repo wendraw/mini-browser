@@ -1,5 +1,4 @@
 import http from 'http'
-import * as fs from 'fs'
 import {
   fakeHttp,
   Response,
@@ -26,6 +25,7 @@ test('GET: image', () =>
     {
       host: 'bpic.588ku.com',
       Connection: 'close',
+      'Accept-Encoding': 'binary',
     },
     ['X-Request-Id', 'Via', 'Date', 'Expires', 'Age']
   ))
@@ -38,10 +38,13 @@ async function compareHTTPResponse(
 ) {
   const responseWithFakeHttp: Response = await fakeHttp(url, { headers })
   const responseWithNodeHttp: httpResponse = await httpRequest(url, { headers })
+
   expect(JSON.stringify(responseWithFakeHttp.statusLine)).toBe(
     JSON.stringify(responseWithNodeHttp.statusLine)
   )
+
   const responseHeaders: ResponseHeader = responseWithFakeHttp.headers
+
   expect(Object.keys(responseWithFakeHttp.headers).length).toBe(
     Object.keys(responseWithNodeHttp.headers).length
   )
@@ -63,20 +66,12 @@ async function compareHTTPResponse(
     expect(headerValueWithFakeHttp).toBe(headerValueWithNodeHttp)
   }
 
-  fs.writeFileSync(
-    `${process.cwd()}/test1.png`,
-    Buffer.from(responseWithFakeHttp.messageBody),
-    'binary'
-  )
-  fs.writeFileSync(
-    `${process.cwd()}/test2.png`,
-    Buffer.from(responseWithNodeHttp.body),
-    'utf-8'
-  )
   if (compareMessageBody) {
     compareMessageBody(responseWithFakeHttp, responseWithNodeHttp)
   } else {
-    expect(responseWithFakeHttp.messageBody).toBe(responseWithNodeHttp.body)
+    expect(responseWithFakeHttp.messageBody).toStrictEqual(
+      responseWithNodeHttp.body
+    )
   }
 }
 
@@ -90,18 +85,21 @@ type httpResponse = {
     reasonPhrase: string
   }
   headers: http.OutgoingHttpHeaders
-  body: string
+  body: Buffer | string
 }
 
 function httpRequest(url: string, options: RequestOptional) {
   return new Promise<httpResponse>((resolve, reject) => {
     const req = http.request(url, options, (res) => {
-      let body = ''
-      res.setEncoding('utf8')
-      res.on('data', (chunk: any) => {
-        body += chunk
+      let body: Buffer | string = Buffer.alloc(0)
+      res.on('data', (chunk) => {
+        body = Buffer.concat([body, chunk])
       })
       res.on('end', () => {
+        const contentType = res.headers['content-type']
+        if (contentType && /^text/.test(contentType)) {
+          body = body.toString('utf-8')
+        }
         resolve({
           statusLine: {
             httpVersion: `HTTP/${res.httpVersion}`,

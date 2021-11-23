@@ -1,7 +1,3 @@
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable global-require */
-/* eslint-disable import/order */
 /*
 Produces production builds and stitches together d.ts files.
 
@@ -17,6 +13,11 @@ yarn build dom
 yarn build core --formats cjs
 ```
 */
+
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable global-require */
+/* eslint-disable import/order */
 
 const fs = require('fs-extra')
 const path = require('path')

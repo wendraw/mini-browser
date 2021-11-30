@@ -29,14 +29,13 @@ export class Request {
 
     const urlObj = urlParse(url)
     this.requestLine = new RequestLine(method as Method, {
-      host: urlObj.host || 'localhost',
+      host: urlObj.hostname || 'localhost',
       port: Number(urlObj.port) || 80,
       path: urlObj.pathname || '/',
     })
     this.headers = { ...defaultHeaders, ...headers }
     this.messageBody = body || ''
-
-    // TODO: this need add some header for init time
+    this.headers.Host = urlObj.hostname || 'localhost'
     if (this.messageBody) {
       this.headers['Content-Length'] = this.messageBody.length.toString()
     }

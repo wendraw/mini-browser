@@ -25,6 +25,7 @@ export class Response {
 }
 
 function parseHTTP(responseBuffer: Buffer) {
+  // split response buffer
   // message body may be has \r\n\r\n
   const [headerBuffer, ...bodys] = splitWith(responseBuffer, '\r\n\r\n')
   const bodyBuffer = Buffer.concat(bodys)
@@ -54,7 +55,9 @@ function parseHTTP(responseBuffer: Buffer) {
   const transferEncoding = headers['Transfer-Encoding']
   if (!contentLength && !transferEncoding) {
     // 实际情况是很多网站的响应体中 Content-Type 和 Transfer-Encoding 都没有
-    throw new Error('The format of the response message is incorrect')
+    throw new Error(
+      'There is no content-length and transfer-encoding in http response headers'
+    )
   }
   let messageBody: Buffer | string = bodyBuffer
 
@@ -100,12 +103,12 @@ function parseChunkBody(body: string): string {
     if (c === '\n') {
       return readChunk
     }
-    throw new Error('The format of the response message is incorrect')
+    throw new Error('waitingLengthEnd: \\r are not followed by \\n')
   }
 
   const readChunk = (c: string) => {
     if (length === 0) {
-      return waitingNewLine
+      return waitingNewLine(c) // 将 "\r" 代理给下一个状态
     }
     content.push(c)
     length -= Buffer.from(c).byteLength
@@ -116,14 +119,16 @@ function parseChunkBody(body: string): string {
     if (c === '\r') {
       return waitingNewLineEnd
     }
-    throw new Error('The format of the response message is incorrect')
+    throw new Error(
+      'waitingNewLine: chunk-size is not equal to the length of chunk-data'
+    )
   }
 
   const waitingNewLineEnd = (c: string) => {
     if (c === '\n') {
       return waitingLength
     }
-    throw new Error('The format of the response message is incorrect')
+    throw new Error('waitingNewLineEnd: \\r are not followed by \\n')
   }
 
   let state = waitingLength

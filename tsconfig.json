@@ -17,7 +17,16 @@
     "jsx": "preserve",
     "lib": ["esnext", "dom"],
     "types": ["jest", "node"],
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "@mini-browser/*": ["packages/*/src"]
+    }
   },
-  "include": ["packages/*/src", "packages/*/__tests__"]
+  "include": [
+    "packages/global.d.ts",
+    "packages/*/src",
+    "packages/runtime-dom/types/jsx.d.ts",
+    "packages/*/__tests__",
+    "test-dts"
+  ]
 }

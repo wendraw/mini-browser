@@ -22,6 +22,9 @@ const pkg = require(resolve(`package.json`))
 const packageOptions = pkg.buildOptions || {}
 const name = packageOptions.filename || path.basename(packageDir)
 
+// ensure TS checks only once for each build
+let hasTSChecked = false
+
 const outputConfigs = {
   esm: {
     file: resolve(`dist/${name}.esm.js`),
@@ -70,17 +73,26 @@ function createConfig(format, output, plugins = []) {
   output.sourcemap = !!process.env.SOURCE_MAP
   output.externalLiveBindings = false
 
+  const shouldEmitDeclarations =
+    pkg.types && process.env.TYPES != null && !hasTSChecked
+
   const tsPlugin = typescript({
-    check: process.env.NODE_ENV === 'production',
+    check: process.env.NODE_ENV === 'production' && !hasTSChecked,
     tsconfig: path.resolve(__dirname, 'tsconfig.json'),
     cacheRoot: path.resolve(__dirname, 'node_modules/.rts2_cache'),
     tsconfigOverride: {
       compilerOptions: {
         sourceMap: output.sourcemap,
+        declaration: shouldEmitDeclarations,
+        declarationMap: shouldEmitDeclarations,
       },
       exclude: ['**/__tests__', 'test-dts'],
     },
   })
+  // we only need to check TS and generate declarations once for each build.
+  // it also seems to run into weird issues when checking multiple times
+  // during a single build.
+  hasTSChecked = true
 
   const entryFile = /runtime$/.test(format) ? `src/runtime.ts` : `src/index.ts`
   const external = [

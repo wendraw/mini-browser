@@ -33,5 +33,7 @@ module.exports = {
     ],
     'no-continue': 'off',
     'no-plusplus': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn'],
   },
 }

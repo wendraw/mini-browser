@@ -5,7 +5,8 @@
   "author": "wendraw",
   "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/parse-html#readme",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/parse-html.cjs.js",
+  "module": "dist/parse-html.esm.js",
   "files": [
     "dist"
   ],
@@ -28,5 +29,8 @@
   },
   "bugs": {
     "url": "https://github.com/wendraw/mini-browser/issues"
+  },
+  "dependencies": {
+    "htmlparser2": "^7.2.0"
   }
 }

@@ -28,5 +28,11 @@
   },
   "bugs": {
     "url": "https://github.com/wendraw/mini-browser/issues"
+  },
+  "dependencies": {
+    "css": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/css": "^0.0.33"
   }
 }

@@ -73,8 +73,5 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  },
-  "dependencies": {
-    "htmlparser2": "^7.2.0"
   }
 }

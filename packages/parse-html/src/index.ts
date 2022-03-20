@@ -1,3 +1,4 @@
-import HTMLParser from './parse-html'
+import HTMLParser, { Handle } from './parse-html'
 
 export default HTMLParser
+export { Handle }

@@ -9,6 +9,19 @@
   "publishConfig": {
     "access": "public"
   },
+  "main": "index.js",
+  "module": "dist/shared.esm.js",
+  "types": "dist/shared.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "buildOptions": {
+    "formats": [
+      "esm",
+      "cjs"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wendraw/mini-browser.git"

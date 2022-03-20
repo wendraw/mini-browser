@@ -92,14 +92,19 @@ importers:
 
   packages/parse-html:
     specifiers:
+      '@mini-browser/shared': workspace:*
       htmlparser2: ^7.2.0
     dependencies:
+      '@mini-browser/shared': link:../shared
       htmlparser2: 7.2.0
 
   packages/parse-js:
     specifiers: {}
 
   packages/server:
+    specifiers: {}
+
+  packages/shared:
     specifiers: {}
 
 packages:

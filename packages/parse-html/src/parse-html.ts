@@ -1,27 +1,21 @@
 import { Parser } from 'htmlparser2'
-
-type DOMType = 'document' | 'element' | 'text'
-
-interface DOMNode {
-  type: DOMType
-  tagName?: string
-  attributes?: { name?: string }
-  content?: string
-  parent?: DOMNode | null
-  children?: DOMNode[]
-  prev?: DOMNode | null
-  next?: DOMNode | null
-}
+import {
+  ElementNode,
+  DocumentNode,
+  NodeTypes,
+  Attribute,
+  TextNode,
+} from '@mini-browser/shared'
 
 export interface Handle {
-  onScriptCallback?: (scriptNode: DOMNode) => void
-  onStyleCallback?: (styleNode: DOMNode) => void
+  onScriptCallback?: (scriptNode: ElementNode) => void
+  onStyleCallback?: (styleNode: ElementNode) => void
 }
 
 export default class HTMLParser {
-  public dom: DOMNode
+  public dom: DocumentNode | ElementNode
 
-  private stack: DOMNode[]
+  private stack: (DocumentNode | ElementNode)[]
 
   private parser: Parser
 
@@ -29,10 +23,10 @@ export default class HTMLParser {
 
   constructor(callback: Handle) {
     this.dom = {
-      type: 'document',
+      type: NodeTypes.DOCUMENT,
       tagName: 'document',
       children: [],
-    }
+    } as DocumentNode
     this.stack = [this.dom]
     this.parser = new Parser(
       {
@@ -57,17 +51,23 @@ export default class HTMLParser {
     name: string,
     attributes: {
       [s: string]: string
-    },
-    isImplied: boolean
+    }
   ) {
     const top = this.stack[this.stack.length - 1]
-    const element: DOMNode = {
-      type: 'element',
+    const attrs: Attribute[] = Object.entries(attributes).map(
+      ([key, value]) => ({
+        name: key,
+        value,
+      })
+    )
+    const element: ElementNode = {
+      type: NodeTypes.ELEMENT,
       tagName: name,
-      attributes,
+      attributes: attrs,
       parent: top,
       children: [],
     }
+
     if (!top.children) {
       top.children = []
     }
@@ -84,8 +84,8 @@ export default class HTMLParser {
     const top = this.stack[this.stack.length - 1]
     const text = content.replace(/\s+/g, ' ')
     if (text === ' ') return
-    const textNode: DOMNode = {
-      type: 'text',
+    const textNode: TextNode = {
+      type: NodeTypes.TEXT,
       content: text,
       parent: top,
     }
@@ -100,10 +100,10 @@ export default class HTMLParser {
     top.children.push(textNode)
   }
 
-  private onCloseTag(name: string, isImplied: boolean) {
+  private onCloseTag(name: string) {
     if (name === 'script') {
       if (this.stack.length) {
-        const scriptNode = this.stack[this.stack.length - 1]
+        const scriptNode = this.stack[this.stack.length - 1] as ElementNode
         if (this.callback?.onScriptCallback) {
           this.callback?.onScriptCallback(scriptNode)
         }
@@ -112,7 +112,7 @@ export default class HTMLParser {
 
     if (name === 'style') {
       if (this.stack.length) {
-        const styleNode = this.stack[this.stack.length - 1]
+        const styleNode = this.stack[this.stack.length - 1] as ElementNode
         if (this.callback?.onStyleCallback) {
           this.callback?.onStyleCallback(styleNode)
         }

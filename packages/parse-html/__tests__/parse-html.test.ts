@@ -1,3 +1,4 @@
+import { NodeTypes } from '@mini-browser/shared'
 import HTMLParser from '../src/index'
 
 test('single tag', async () => {
@@ -5,13 +6,13 @@ test('single tag', async () => {
   removeProps(dom, ['parent', 'prev', 'next'])
 
   expect(dom).toEqual({
-    type: 'document',
+    type: NodeTypes.DOCUMENT,
     tagName: 'document',
     children: [
       {
-        type: 'element',
+        type: NodeTypes.ELEMENT,
         tagName: 'div',
-        attributes: {},
+        attributes: [],
         children: [],
       },
     ],
@@ -23,13 +24,13 @@ test('self close tag', async () => {
   removeProps(dom, ['parent', 'prev', 'next'])
 
   expect(dom).toEqual({
-    type: 'document',
+    type: NodeTypes.DOCUMENT,
     tagName: 'document',
     children: [
       {
-        type: 'element',
+        type: NodeTypes.ELEMENT,
         tagName: 'div',
-        attributes: {},
+        attributes: [],
         children: [],
       },
     ],
@@ -41,22 +42,22 @@ test('children tag', async () => {
   removeProps(dom, ['parent', 'prev', 'next'])
 
   expect(dom).toEqual({
-    type: 'document',
+    type: NodeTypes.DOCUMENT,
     tagName: 'document',
     children: [
       {
-        type: 'element',
+        type: NodeTypes.ELEMENT,
         tagName: 'div',
-        attributes: {},
+        attributes: [],
         children: [
           {
-            type: 'text',
+            type: NodeTypes.TEXT,
             content: '1234',
           },
           {
-            type: 'element',
+            type: NodeTypes.ELEMENT,
             tagName: 'span',
-            attributes: {},
+            attributes: [],
             children: [],
           },
         ],

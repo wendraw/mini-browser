@@ -25,12 +25,6 @@ test('GET: image', async () => {
   )
 })
 
-test('GET: 127.0.0.1:8088 transfer-encoding: chunked', async () => {
-  await compareHTTPResponse('http://127.0.0.1:8088/', {
-    Connection: 'close',
-  })
-})
-
 async function compareHTTPResponse(
   url: string,
   headers: RequestHeader = {},

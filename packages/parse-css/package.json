@@ -30,6 +30,7 @@
     "url": "https://github.com/wendraw/mini-browser/issues"
   },
   "dependencies": {
+    "@mini-browser/shared": "workspace:^0.0.0",
     "css": "^3.0.0"
   },
   "devDependencies": {

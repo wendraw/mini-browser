@@ -83,9 +83,11 @@ importers:
 
   packages/parse-css:
     specifiers:
+      '@mini-browser/shared': workspace:^0.0.0
       '@types/css': ^0.0.33
       css: ^3.0.0
     dependencies:
+      '@mini-browser/shared': link:../shared
       css: 3.0.0
     devDependencies:
       '@types/css': 0.0.33

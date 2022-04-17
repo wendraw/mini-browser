@@ -1,3 +1,1 @@
-import parseCSS from './parse-css'
-
-export default parseCSS
+export * from './parse-css'

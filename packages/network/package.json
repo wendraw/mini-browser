@@ -5,7 +5,7 @@
   "author": "wendraw",
   "homepage": "https://github.com/wendraw/mini-browser/tree/main/packages/network#readme",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/network.cjs.js",
   "files": [
     "dist"
   ],

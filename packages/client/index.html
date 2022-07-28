@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Toyed Browser, by 学弟学妹说的都队</title>
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <meta http-equiv="X-Content-Security-Policy" content="script-src 'self'" />
+  </head>
+  <style type="text/css">
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    #app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #browser-head {
+      height: 30px;
+      display: flex;
+      max-width: 100%;
+      margin: 20px;
+    }
+    #browser-head > input {
+      flex: 1;
+      margin-right: 10px;
+    }
+    #browser-content {
+      margin: 0 20px;
+      flex: 1;
+    }
+  </style>
+  <body>
+    <div id="app">
+      <div id="browser-head">
+        <input
+          type="url"
+          id="url-input"
+          value="http://82.157.127.8:3000/flexTest.html"
+        />
+        <button id="go">GO</button>
+      </div>
+    </div>
+
+    <!-- You can also require other files to run in this process -->
+    <!-- <script src="./dist/renderer.js"></script> -->
+  </body>
+</html>

@@ -25,27 +25,54 @@ const name = packageOptions.filename || path.basename(packageDir)
 // ensure TS checks only once for each build
 let hasTSChecked = false
 
-const outputConfigs = {
+const outputConfigs = (filename = name) => ({
   esm: {
-    file: resolve(`dist/${name}.esm.js`),
+    file: resolve(`dist/${filename}.esm.js`),
     format: `es`,
   },
   cjs: {
-    file: resolve(`dist/${name}.cjs.js`),
+    file: resolve(`dist/${filename}.cjs.js`),
     format: `cjs`,
   },
   global: {
-    file: resolve(`dist/${name}.global.js`),
+    file: resolve(`dist/${filename}.global.js`),
     format: `iife`,
   },
-}
+})
 
 const defaultFormats = ['esm-bundler', 'cjs']
 const inlineFormats = process.env.FORMATS && process.env.FORMATS.split(',')
 const packageFormats = inlineFormats || packageOptions.formats || defaultFormats
-const packageConfigs = process.env.PROD_ONLY
-  ? []
-  : packageFormats.map((format) => createConfig(format, outputConfigs[format]))
+const packageEntrys = packageOptions.entrys
+let config = []
+
+if (process.env.PROD_ONLY) {
+  config = []
+} else if (packageEntrys) {
+  config = packageEntrys.reduce(
+    (acc, entry) =>
+      acc.concat(
+        packageFormats.map((format) =>
+          createConfig(
+            format,
+            {
+              file: resolve(`dist/${entry}.js`),
+              format: `cjs`,
+            },
+            undefined,
+            `src/${entry}.ts`
+          )
+        )
+      ),
+    []
+  )
+} else {
+  config = packageFormats.map((format) =>
+    createConfig(format, outputConfigs()[format])
+  )
+}
+
+const packageConfigs = config
 
 if (process.env.NODE_ENV === 'production') {
   packageFormats.forEach((format) => {
@@ -63,7 +90,12 @@ if (process.env.NODE_ENV === 'production') {
 
 export default packageConfigs
 
-function createConfig(format, output, plugins = []) {
+function createConfig(
+  format,
+  output,
+  plugins = [],
+  entryFile = 'src/index.ts'
+) {
   if (!output) {
     console.log(require('chalk').yellow(`invalid format: "${format}"`))
     process.exit(1)
@@ -94,7 +126,6 @@ function createConfig(format, output, plugins = []) {
   // during a single build.
   hasTSChecked = true
 
-  const entryFile = /runtime$/.test(format) ? `src/runtime.ts` : `src/index.ts`
   const external = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
@@ -139,7 +170,7 @@ function createConfig(format, output, plugins = []) {
 function createProductionConfig(format) {
   return createConfig(format, {
     file: resolve(`dist/${name}.${format}.prod.js`),
-    format: outputConfigs[format].format,
+    format: outputConfigs()[format].format,
   })
 }
 
@@ -147,8 +178,8 @@ function createMinifiedConfig(format) {
   return createConfig(
     format,
     {
-      file: outputConfigs[format].file.replace(/\.js$/, '.prod.js'),
-      format: outputConfigs[format].format,
+      file: outputConfigs()[format].file.replace(/\.js$/, '.prod.js'),
+      format: outputConfigs()[format].format,
     },
     [
       terser({

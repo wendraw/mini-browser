@@ -20,7 +20,10 @@
     "rootDir": ".",
     "paths": {
       "@mini-browser/*": ["packages/*/src"]
-    }
+    },
+    "typeRoots": [
+      "node_modules/@types",
+    ],
   },
   "include": [
     "packages/*/src",

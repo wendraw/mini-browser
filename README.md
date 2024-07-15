@@ -1,3 +1,6 @@
 # mini-browser
 
-use volta pinning Node engine and package manager version
+This is a mini browser desktop app, via node.js and electron.
+
+# tutorial 
+if you want to learn more technology of browsers, you can watch [toyed-browser-tutorial](https://github.com/wendraw/toyed-browser-tutorial)
